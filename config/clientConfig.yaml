@@ -1,0 +1,46 @@
+# etcd 集群配置
+etcd:
+  endpoints:
+    - localhost:2379
+  dial_timeout: 5s
+  username: ""
+  password: ""
+balancer:
+  "produce":
+    "matchsvr":
+      balancer_type: "consistent-hash"
+      consistent_hash_config:
+        hash_func: "crc32"
+        replicas: 1000
+        key: "hash-key"
+    "chatsvr":
+      balancer_type: "random"
+      dynamic_config:
+        key: "chat-user-id"
+        cache: true
+        cache_size: 6000
+      static_config:
+        key: "user-id"
+        cache: true
+        cache_size: 10240
+      consistent_hash_config:
+        hash_func: "crc32"
+        replicas: 20
+        key: "hash-key"
+        cache: true
+        cache_size: 6000
+  "test":
+redis:
+  "produce":
+    addrs:
+      - "localhost:9001"
+      - "localhost:9002"
+      - "localhost:9003"
+      - "localhost:9004"
+      - "localhost:9005"
+      - "localhost:9006"
+    username: ""
+    password: ""
+    dial_timeout: 5s
+    read_timeout: 3s
+    write_timeout: 3s

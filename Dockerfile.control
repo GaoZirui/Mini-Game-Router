@@ -1,0 +1,21 @@
+# build stage
+FROM golang:1.21 as builder
+
+WORKDIR /app
+
+COPY . .
+RUN go mod download \
+    && CGO_ENABLED=0 go build -o control demo/control/control.go
+
+# target stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+ENV TZ=Asia/Shanghai
+RUN apk add --no-cache tzdata && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+COPY --from=builder /app/control control
+
+CMD ["./control"]

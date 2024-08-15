@@ -1,0 +1,46 @@
+# etcd 集群配置
+etcd:
+  endpoints:
+    - localhost:2379
+  dial_timeout: 5s
+  username: ""
+  password: ""
+server:
+  "server-1":
+    endpoint:
+      name: "chatsvr"
+      namespace: "produce"
+      ip: "localhost"
+      port: "10000"
+      weight: 1
+      wants_type: all_match
+      wants:
+        - match_type: prefix
+          pattern: "user1"
+    lease: 1
+  "server-2":
+    endpoint:
+      name: "chatsvr"
+      namespace: "produce"
+      ip: "localhost"
+      port: "12000"
+      weight: 10
+      wants_type: all_match
+      wants:
+        - match_type: prefix
+          pattern: "user2"
+    lease: 1
+  "server-3":
+    endpoint:
+      name: "chatsvr"
+      namespace: "produce"
+      ip: "localhost"
+      port: "14000"
+      weight: 1
+      wants_type: all_not_match
+      wants:
+        - match_type: prefix
+          pattern: "user1"
+        - match_type: prefix
+          pattern: "user2"
+    lease: 1

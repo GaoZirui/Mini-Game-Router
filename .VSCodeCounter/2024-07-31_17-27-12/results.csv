@@ -1,0 +1,23 @@
+"filename", "language", "Go Module File", "Go", "Go Checksum File", "Protocol Buffers", "comment", "blank", "total"
+"/data/home/ziruigao/src/mini-game-router/cmd/mini-game-router/main.go", "Go", 0, 29, 0, 0, 0, 9, 38
+"/data/home/ziruigao/src/mini-game-router/core/balancer/balancerPrototype.go", "Go", 0, 39, 0, 0, 0, 6, 45
+"/data/home/ziruigao/src/mini-game-router/core/balancer/consistentHashBalancer.go", "Go", 0, 83, 0, 0, 0, 18, 101
+"/data/home/ziruigao/src/mini-game-router/core/balancer/myBalancer.go", "Go", 0, 98, 0, 0, 0, 14, 112
+"/data/home/ziruigao/src/mini-game-router/core/balancer/randomBalancer.go", "Go", 0, 56, 0, 0, 0, 17, 73
+"/data/home/ziruigao/src/mini-game-router/core/balancer/weightBalancer.go", "Go", 0, 73, 0, 0, 0, 20, 93
+"/data/home/ziruigao/src/mini-game-router/core/config/config.go", "Go", 0, 51, 0, 0, 0, 12, 63
+"/data/home/ziruigao/src/mini-game-router/core/etcd/discovery.go", "Go", 0, 128, 0, 0, 0, 23, 151
+"/data/home/ziruigao/src/mini-game-router/core/etcd/register.go", "Go", 0, 74, 0, 0, 0, 11, 85
+"/data/home/ziruigao/src/mini-game-router/core/proxy/redirector/redirector.go", "Go", 0, 46, 0, 0, 0, 11, 57
+"/data/home/ziruigao/src/mini-game-router/core/proxy/sidecar/sidecar.go", "Go", 0, 65, 0, 0, 0, 18, 83
+"/data/home/ziruigao/src/mini-game-router/core/router/router.go", "Go", 0, 34, 0, 0, 0, 6, 40
+"/data/home/ziruigao/src/mini-game-router/core/stateful/stateful.go", "Go", 0, 58, 0, 0, 0, 11, 69
+"/data/home/ziruigao/src/mini-game-router/demo/client/client.go", "Go", 0, 57, 0, 0, 0, 10, 67
+"/data/home/ziruigao/src/mini-game-router/demo/server/server.go", "Go", 0, 60, 0, 0, 0, 14, 74
+"/data/home/ziruigao/src/mini-game-router/go.mod", "Go Module File", 34, 0, 0, 0, 0, 5, 39
+"/data/home/ziruigao/src/mini-game-router/go.sum", "Go Checksum File", 0, 0, 102, 0, 0, 1, 103
+"/data/home/ziruigao/src/mini-game-router/proto/hello.pb.go", "Go", 0, 185, 0, 0, 0, 26, 211
+"/data/home/ziruigao/src/mini-game-router/proto/hello.proto", "Protocol Buffers", 0, 0, 0, 12, 0, 4, 16
+"/data/home/ziruigao/src/mini-game-router/proto/hello_grpc.pb.go", "Go", 0, 95, 0, 0, 0, 16, 111
+"/data/home/ziruigao/src/mini-game-router/utils/logger/logger.go", "Go", 0, 9, 0, 0, 0, 4, 13
+"Total", "-", 34, 1240, 102, 12, 0, 256, 1644

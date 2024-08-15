@@ -1,0 +1,111 @@
+Date : 2024-08-06 16:18:19
+Directory : /data/home/ziruigao/src/mini-game-router-v1
+Total : 47 files,  498 codes, 0 comments, 80 blanks, all 578 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| Go               |         41 |        496 |          0 |         79 |        575 |
+| Go Module File   |          2 |          1 |          0 |          1 |          2 |
+| Go Checksum File |          2 |          1 |          0 |          0 |          1 |
+| Protocol Buffers |          2 |          0 |          0 |          0 |          0 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                   |         47 |        498 |          0 |         80 |        578 |
+| . (Files)                                                                           |          2 |        138 |          0 |          7 |        145 |
+| ..                                                                                  |         21 |     -1,388 |          0 |       -256 |     -1,644 |
+| ../mini-game-router                                                                 |         21 |     -1,388 |          0 |       -256 |     -1,644 |
+| ../mini-game-router (Files)                                                         |          2 |       -136 |          0 |         -6 |       -142 |
+| ../mini-game-router/cmd                                                             |          1 |        -29 |          0 |         -9 |        -38 |
+| ../mini-game-router/cmd/mini-game-router                                            |          1 |        -29 |          0 |         -9 |        -38 |
+| ../mini-game-router/core                                                            |         12 |       -805 |          0 |       -167 |       -972 |
+| ../mini-game-router/core/balancer                                                   |          5 |       -349 |          0 |        -75 |       -424 |
+| ../mini-game-router/core/config                                                     |          1 |        -51 |          0 |        -12 |        -63 |
+| ../mini-game-router/core/etcd                                                       |          2 |       -202 |          0 |        -34 |       -236 |
+| ../mini-game-router/core/proxy                                                      |          2 |       -111 |          0 |        -29 |       -140 |
+| ../mini-game-router/core/proxy/redirector                                           |          1 |        -46 |          0 |        -11 |        -57 |
+| ../mini-game-router/core/proxy/sidecar                                              |          1 |        -65 |          0 |        -18 |        -83 |
+| ../mini-game-router/core/router                                                     |          1 |        -34 |          0 |         -6 |        -40 |
+| ../mini-game-router/core/stateful                                                   |          1 |        -58 |          0 |        -11 |        -69 |
+| ../mini-game-router/demo                                                            |          2 |       -117 |          0 |        -24 |       -141 |
+| ../mini-game-router/demo/client                                                     |          1 |        -57 |          0 |        -10 |        -67 |
+| ../mini-game-router/demo/server                                                     |          1 |        -60 |          0 |        -14 |        -74 |
+| ../mini-game-router/proto                                                           |          3 |       -292 |          0 |        -46 |       -338 |
+| ../mini-game-router/utils                                                           |          1 |         -9 |          0 |         -4 |        -13 |
+| ../mini-game-router/utils/logger                                                    |          1 |         -9 |          0 |         -4 |        -13 |
+| core                                                                                |         17 |      1,197 |          0 |        242 |      1,439 |
+| core/balancer                                                                       |          7 |        448 |          0 |        100 |        548 |
+| core/config                                                                         |          1 |        133 |          0 |         23 |        156 |
+| core/etcd                                                                           |          2 |        146 |          0 |         24 |        170 |
+| core/init                                                                           |          1 |         19 |          0 |          4 |         23 |
+| core/metrics                                                                        |          2 |         82 |          0 |         24 |        106 |
+| core/netToolkit                                                                     |          1 |         86 |          0 |         18 |        104 |
+| core/resolver                                                                       |          1 |         70 |          0 |         13 |         83 |
+| core/router                                                                         |          1 |        161 |          0 |         23 |        184 |
+| core/tools                                                                          |          1 |         52 |          0 |         13 |         65 |
+| demo                                                                                |          3 |        219 |          0 |         38 |        257 |
+| demo/client                                                                         |          1 |        103 |          0 |         15 |        118 |
+| demo/control                                                                        |          1 |         41 |          0 |          8 |         49 |
+| demo/server                                                                         |          1 |         75 |          0 |         15 |         90 |
+| proto                                                                               |          3 |        292 |          0 |         46 |        338 |
+| test                                                                                |          1 |         40 |          0 |          3 |         43 |
++-------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                            | language         | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/balancerPrototype.go      | Go               |         55 |          0 |          8 |         63 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/consistentHashBalancer.go | Go               |         91 |          0 |         19 |        110 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/dynamicBalancer.go        | Go               |         55 |          0 |         15 |         70 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/myPicker.go               | Go               |         93 |          0 |         12 |        105 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/randomBalancer.go         | Go               |         42 |          0 |         14 |         56 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/staticBalancer.go         | Go               |         52 |          0 |         15 |         67 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/balancer/weightBalancer.go         | Go               |         60 |          0 |         17 |         77 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/config/config.go                   | Go               |        133 |          0 |         23 |        156 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/etcd/discovery.go                  | Go               |         72 |          0 |         14 |         86 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/etcd/register.go                   | Go               |         74 |          0 |         10 |         84 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/init/init.go                       | Go               |         19 |          0 |          4 |         23 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/metrics/clientMetrics.go           | Go               |         48 |          0 |         13 |         61 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/metrics/serverMetrics.go           | Go               |         34 |          0 |         11 |         45 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/netToolkit/netToolkit.go           | Go               |         86 |          0 |         18 |        104 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/resolver/myResolver.go             | Go               |         70 |          0 |         13 |         83 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/router/router.go                   | Go               |        161 |          0 |         23 |        184 |
+| /data/home/ziruigao/src/mini-game-router-v1/core/tools/randomPickMap.go             | Go               |         52 |          0 |         13 |         65 |
+| /data/home/ziruigao/src/mini-game-router-v1/demo/client/client.go                   | Go               |        103 |          0 |         15 |        118 |
+| /data/home/ziruigao/src/mini-game-router-v1/demo/control/control.go                 | Go               |         41 |          0 |          8 |         49 |
+| /data/home/ziruigao/src/mini-game-router-v1/demo/server/server.go                   | Go               |         75 |          0 |         15 |         90 |
+| /data/home/ziruigao/src/mini-game-router-v1/go.mod                                  | Go Module File   |         35 |          0 |          6 |         41 |
+| /data/home/ziruigao/src/mini-game-router-v1/go.sum                                  | Go Checksum File |        103 |          0 |          1 |        104 |
+| /data/home/ziruigao/src/mini-game-router-v1/proto/hello.pb.go                       | Go               |        185 |          0 |         26 |        211 |
+| /data/home/ziruigao/src/mini-game-router-v1/proto/hello.proto                       | Protocol Buffers |         12 |          0 |          4 |         16 |
+| /data/home/ziruigao/src/mini-game-router-v1/proto/hello_grpc.pb.go                  | Go               |         95 |          0 |         16 |        111 |
+| /data/home/ziruigao/src/mini-game-router-v1/test/test.go                            | Go               |         40 |          0 |          3 |         43 |
+| /data/home/ziruigao/src/mini-game-router/cmd/mini-game-router/main.go               | Go               |        -29 |          0 |         -9 |        -38 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/balancerPrototype.go         | Go               |        -39 |          0 |         -6 |        -45 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/consistentHashBalancer.go    | Go               |        -83 |          0 |        -18 |       -101 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/myBalancer.go                | Go               |        -98 |          0 |        -14 |       -112 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/randomBalancer.go            | Go               |        -56 |          0 |        -17 |        -73 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/weightBalancer.go            | Go               |        -73 |          0 |        -20 |        -93 |
+| /data/home/ziruigao/src/mini-game-router/core/config/config.go                      | Go               |        -51 |          0 |        -12 |        -63 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/discovery.go                     | Go               |       -128 |          0 |        -23 |       -151 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/register.go                      | Go               |        -74 |          0 |        -11 |        -85 |
+| /data/home/ziruigao/src/mini-game-router/core/proxy/redirector/redirector.go        | Go               |        -46 |          0 |        -11 |        -57 |
+| /data/home/ziruigao/src/mini-game-router/core/proxy/sidecar/sidecar.go              | Go               |        -65 |          0 |        -18 |        -83 |
+| /data/home/ziruigao/src/mini-game-router/core/router/router.go                      | Go               |        -34 |          0 |         -6 |        -40 |
+| /data/home/ziruigao/src/mini-game-router/core/stateful/stateful.go                  | Go               |        -58 |          0 |        -11 |        -69 |
+| /data/home/ziruigao/src/mini-game-router/demo/client/client.go                      | Go               |        -57 |          0 |        -10 |        -67 |
+| /data/home/ziruigao/src/mini-game-router/demo/server/server.go                      | Go               |        -60 |          0 |        -14 |        -74 |
+| /data/home/ziruigao/src/mini-game-router/go.mod                                     | Go Module File   |        -34 |          0 |         -5 |        -39 |
+| /data/home/ziruigao/src/mini-game-router/go.sum                                     | Go Checksum File |       -102 |          0 |         -1 |       -103 |
+| /data/home/ziruigao/src/mini-game-router/proto/hello.pb.go                          | Go               |       -185 |          0 |        -26 |       -211 |
+| /data/home/ziruigao/src/mini-game-router/proto/hello.proto                          | Protocol Buffers |        -12 |          0 |         -4 |        -16 |
+| /data/home/ziruigao/src/mini-game-router/proto/hello_grpc.pb.go                     | Go               |        -95 |          0 |        -16 |       -111 |
+| /data/home/ziruigao/src/mini-game-router/utils/logger/logger.go                     | Go               |         -9 |          0 |         -4 |        -13 |
+| Total                                                                               |                  |        498 |          0 |         80 |        578 |
++-------------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+

@@ -1,0 +1,195 @@
+version: '3.7'
+
+networks:
+  app-tier:
+    driver: bridge
+
+services:
+  # etcd:
+  #   image: 'bitnami/etcd:latest'
+  #   container_name: etcd
+  #   restart: always
+  #   environment:
+  #     - ALLOW_NONE_AUTHENTICATION=yes
+  #     - ETCD_ADVERTISE_CLIENT_URLS=http://etcd:2379
+  #   ports:
+  #     - 2379:2379
+  #     - 2380:2380
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://etcd:2379/health"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 30
+  #   networks:
+  #     - app-tier
+  # # redis-1配置
+  # redis-1:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-1
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9001:9001
+  #   volumes:
+  #     - ../redis-cluster/9001/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-2配置
+  # redis-2:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-2
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9002:9002
+  #   volumes:
+  #     - ../redis-cluster/9002/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-3配置
+  # redis-3:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-3
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9003:9003
+  #   volumes:
+  #     - ../redis-cluster/9003/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-4配置
+  # redis-4:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-4
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9004:9004
+  #   volumes:
+  #     - ../redis-cluster/9004/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-5配置
+  # redis-5:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-5
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9005:9005
+  #   volumes:
+  #     - ../redis-cluster/9005/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-6配置
+  # redis-6:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-6
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9006:9006
+  #   volumes:
+  #     - ../redis-cluster/9006/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # server-1:
+  #   image: 'mini-game-router-server:latest'
+  #   container_name: server-1
+  #   restart: no
+  #   ports:
+  #     - 18080:8080
+  #   volumes:
+  #     - './serverConfig.yaml:/app/serverConfig.yaml'
+  #   command: ./server --svrID=server-1 --endpointsNum=100
+  #   depends_on:
+  #     - etcd
+  #   networks:
+  #     - app-tier
+  # server-2:
+  #   image: 'mini-game-router-server:latest'
+  #   container_name: server-2
+  #   restart: no
+  #   ports:
+  #     - 18081:8080
+  #   volumes:
+  #     - './serverConfig.yaml:/app/serverConfig.yaml'
+  #   command: ./server --svrID=server-2 --endpointsNum=100
+  #   depends_on:
+  #     - etcd
+  #   networks:
+  #     - app-tier
+  # server-3:
+  #   image: 'mini-game-router-server:latest'
+  #   container_name: server-3
+  #   restart: no
+  #   ports:
+  #     - 18082:8080
+  #   volumes:
+  #     - './serverConfig.yaml:/app/serverConfig.yaml'
+  #   command: ./server --svrID=server-3 --endpointsNum=100
+  #   depends_on:
+  #     - etcd
+  #   networks:
+  #     - app-tier
+  # control:
+  #   image: 'mini-game-router-control:latest'
+  #   container_name: control
+  #   restart: no
+  #   volumes:
+  #     - './clientConfig.yaml:/app/clientConfig.yaml'
+  #   command: ./control
+  #   depends_on:
+  #     - etcd
+  #   networks:
+  #     - app-tier
+  # client:
+  #   image: 'mini-game-router-client:latest'
+  #   container_name: client
+  #   restart: no
+  #   ports:
+  #     - 28080:8080
+  #   volumes:
+  #     - './clientConfig.yaml:/app/clientConfig.yaml'
+  #   command: sleep infinity
+  #   depends_on:
+  #     - etcd
+  #     - redis-1
+  #     - redis-2
+  #     - redis-3
+  #     - redis-4
+  #     - redis-5
+  #     - redis-6
+  #     - server-1
+  #     - server-2
+  #     - server-3
+  #   networks:
+  #     - app-tier
+  # ---------- monitor ----------
+  prometheus:
+    image: 'prom/prometheus'
+    container_name: prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - './prometheus.yml:/etc/prometheus/prometheus.yml'
+    networks:
+      - app-tier
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    user: '0'
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data:/var/lib/grafana
+      - ./grafana-conf:/etc/grafana/provisioning/datasources
+    depends_on:
+    - prometheus
+    networks:
+      - app-tier
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    networks:
+      - app-tier

@@ -1,0 +1,64 @@
+Date : 2024-07-26 20:38:45
+Directory : /data/home/ziruigao/src/mini-game-router
+Total : 19 files,  345 codes, 0 comments, 83 blanks, all 428 lines
+
+Languages
++------------------+------------+------------+------------+------------+------------+
+| language         | files      | code       | comment    | blank      | total      |
++------------------+------------+------------+------------+------------+------------+
+| Go               |         17 |        342 |          0 |         83 |        425 |
+| Go Checksum File |          1 |          2 |          0 |          0 |          2 |
+| Go Module File   |          1 |          1 |          0 |          0 |          1 |
++------------------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                             | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                |         19 |        345 |          0 |         83 |        428 |
+| . (Files)                                                                        |          2 |          3 |          0 |          0 |          3 |
+| cmd                                                                              |          1 |          4 |          0 |          0 |          4 |
+| cmd/mini-game-router                                                             |          1 |          4 |          0 |          0 |          4 |
+| core                                                                             |         12 |        307 |          0 |         77 |        384 |
+| core/balancer                                                                    |          4 |        143 |          0 |         37 |        180 |
+| core/config                                                                      |          1 |          4 |          0 |          1 |          5 |
+| core/etcd                                                                        |          4 |         25 |          0 |          5 |         30 |
+| core/etcd (Files)                                                                |          3 |         -4 |          0 |         -1 |         -5 |
+| core/etcd/etcdServer                                                             |          1 |         29 |          0 |          6 |         35 |
+| core/proxy                                                                       |          2 |        124 |          0 |         30 |        154 |
+| core/proxy/redirector                                                            |          1 |         46 |          0 |         11 |         57 |
+| core/proxy/sidecar                                                               |          1 |         78 |          0 |         19 |         97 |
+| core/router                                                                      |          1 |         11 |          0 |          4 |         15 |
+| demo                                                                             |          2 |         65 |          0 |         16 |         81 |
+| demo/client                                                                      |          1 |         25 |          0 |          6 |         31 |
+| demo/server                                                                      |          1 |         40 |          0 |         10 |         50 |
+| server                                                                           |          2 |        -34 |          0 |        -10 |        -44 |
+| server/downstream                                                                |          1 |         -1 |          0 |         -1 |         -2 |
+| server/upstream                                                                  |          1 |        -33 |          0 |         -9 |        -42 |
++----------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| filename                                                                         | language         | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+
+| /data/home/ziruigao/src/mini-game-router/cmd/mini-game-router/main.go            | Go               |          4 |          0 |          0 |          4 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/balancer.go               | Go               |         23 |          0 |          5 |         28 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/consistentHashBalancer.go | Go               |         69 |          0 |         16 |         85 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/randomBalancer.go         | Go               |         50 |          0 |         15 |         65 |
+| /data/home/ziruigao/src/mini-game-router/core/balancer/weightBalancer.go         | Go               |          1 |          0 |          1 |          2 |
+| /data/home/ziruigao/src/mini-game-router/core/config/config.go                   | Go               |          4 |          0 |          1 |          5 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/discovery.go                  | Go               |          1 |          0 |          0 |          1 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/etcdServer/etcd.go            | Go               |         29 |          0 |          6 |         35 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/etcd_test.go                  | Go               |         -1 |          0 |         -1 |         -2 |
+| /data/home/ziruigao/src/mini-game-router/core/etcd/register.go                   | Go               |         -4 |          0 |          0 |         -4 |
+| /data/home/ziruigao/src/mini-game-router/core/proxy/redirector/redirector.go     | Go               |         46 |          0 |         11 |         57 |
+| /data/home/ziruigao/src/mini-game-router/core/proxy/sidecar/sidecar.go           | Go               |         78 |          0 |         19 |         97 |
+| /data/home/ziruigao/src/mini-game-router/core/router/router.go                   | Go               |         11 |          0 |          4 |         15 |
+| /data/home/ziruigao/src/mini-game-router/demo/client/client.go                   | Go               |         25 |          0 |          6 |         31 |
+| /data/home/ziruigao/src/mini-game-router/demo/server/server.go                   | Go               |         40 |          0 |         10 |         50 |
+| /data/home/ziruigao/src/mini-game-router/go.mod                                  | Go Module File   |          1 |          0 |          0 |          1 |
+| /data/home/ziruigao/src/mini-game-router/go.sum                                  | Go Checksum File |          2 |          0 |          0 |          2 |
+| /data/home/ziruigao/src/mini-game-router/server/downstream/downstream.go         | Go               |         -1 |          0 |         -1 |         -2 |
+| /data/home/ziruigao/src/mini-game-router/server/upstream/upstream.go             | Go               |        -33 |          0 |         -9 |        -42 |
+| Total                                                                            |                  |        345 |          0 |         83 |        428 |
++----------------------------------------------------------------------------------+------------------+------------+------------+------------+------------+

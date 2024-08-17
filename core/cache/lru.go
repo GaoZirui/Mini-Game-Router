@@ -18,7 +18,11 @@ type entry struct {
 	value *router.Endpoint
 }
 
-func NewLRUCache(capacity int) *LRUCache {
+func (c *LRUCache) Name() string {
+	return "lru"
+}
+
+func (c *LRUCache) New(capacity int) Cache {
 	return &LRUCache{
 		capacity: capacity,
 		cache:    make(map[string]*list.Element),

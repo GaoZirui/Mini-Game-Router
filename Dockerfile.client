@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY . .
 RUN go mod download \
-    && CGO_ENABLED=0 go build -o client demo/client/client.go
+    && CGO_ENABLED=0 go build -o client cmd/demo/client/client.go
 
 # target stage
 FROM alpine:latest

@@ -1,6 +1,7 @@
 package mybalancer
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -18,9 +19,14 @@ type DynamicBalancer struct {
 	pointerTable  map[string]*router.Endpoint
 	mu            sync.RWMutex
 	randomPickMap *tools.RandomPickMap
-	cache         *cache.LRUCache
+	cache         cache.Cache
 	hit           int64
 	miss          int64
+	cancel        context.CancelFunc
+}
+
+func (r *DynamicBalancer) Name() string {
+	return "dynamic"
 }
 
 func (r *DynamicBalancer) New() MyBalancer {
@@ -33,8 +39,10 @@ func (r *DynamicBalancer) Init(config *config.BalancerRule) {
 	r.mu = sync.RWMutex{}
 	r.randomPickMap = tools.NewRandomPickMap()
 	if config.DynamicConfig.Cache {
-		r.cache = cache.NewLRUCache(config.DynamicConfig.CacheSize)
-		go nettoolkit.Subscribe(strings.Split(r.key, "-")[0], r.cache)
+		r.cache = cache.CacheFactory(config.DynamicConfig.CacheType, config.DynamicConfig.CacheSize)
+		var ctx context.Context
+		ctx, r.cancel = context.WithCancel(context.Background())
+		go nettoolkit.Subscribe(ctx, strings.Split(r.key, "-")[0], r.cache)
 	} else {
 		r.cache = nil
 	}
@@ -62,10 +70,10 @@ func (r *DynamicBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
 	}
 
 	ep := nettoolkit.GetEndpoint(key)
-	if ep == "" {
+	if ep == nil {
 		return nil
 	}
-	e, exists := r.pointerTable[ep]
+	e, exists := r.pointerTable[ep.ToAddr()]
 	if !exists {
 		return nil
 	}
@@ -81,33 +89,31 @@ func (r *DynamicBalancer) Add(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if _, exists := r.pointerTable[ep.ToString()]; !exists {
-		r.pointerTable[ep.ToString()] = ep
-		r.randomPickMap.Add(ep)
-	}
+	r.pointerTable[ep.ToAddr()] = ep
+	r.randomPickMap.Add(ep)
 }
 
 func (r *DynamicBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ep = r.pointerTable[ep.ToString()]
-	delete(r.pointerTable, ep.ToString())
+	ep = r.pointerTable[ep.ToAddr()]
+	delete(r.pointerTable, ep.ToAddr())
 	r.randomPickMap.Remove(ep)
-}
-
-func (r *DynamicBalancer) Reset() {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	r.pointerTable = map[string]*router.Endpoint{}
-	r.randomPickMap.Reset()
 }
 
 func (r *DynamicBalancer) GetAll() []*router.Endpoint {
 	return r.randomPickMap.GetAll()
 }
 
+func (r *DynamicBalancer) Stop() {
+	r.cancel()
+}
+
 func (r *DynamicBalancer) Rate() {
 	fmt.Printf("hit rate: %v miss rate %v", float64(r.hit)/float64(r.hit+r.miss), float64(r.miss)/float64(r.hit+r.miss))
+}
+
+func (r *DynamicBalancer) GetCache() cache.Cache {
+	return r.cache
 }

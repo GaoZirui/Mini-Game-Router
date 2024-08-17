@@ -3,6 +3,7 @@ package config
 import (
 	"context"
 	"os"
+	"strconv"
 	"time"
 	"ziruigao/mini-game-router/core/router"
 
@@ -15,7 +16,7 @@ type Config struct {
 	Etcd     *EtcdConfig                        `yaml:"etcd"`
 	Balancer map[string]map[string]BalancerRule `yaml:"balancer"`
 	Redis    map[string]*RedisConfig            `yaml:"redis"`
-	Server   map[string]ServerConfig            `yaml:"server"`
+	Server   map[string]*ServerConfig           `yaml:"server"`
 }
 
 type ServerConfig struct {
@@ -35,6 +36,7 @@ type BalancerRule struct {
 	ConsistentHashConfig ConsistentHashConfig `yaml:"consistent_hash_config"`
 	StaticConfig         StaticConfig         `yaml:"static_config"`
 	DynamicConfig        DynamicConfig        `yaml:"dynamic_config"`
+	CostumConfig         map[string]string    `yaml:"custom_config"`
 }
 
 func (b *BalancerRule) ToString() string {
@@ -55,22 +57,19 @@ func ParseBalancerRule(s string) *BalancerRule {
 }
 
 type ConsistentHashConfig struct {
-	HashFunc  string `yaml:"hash_func"`
-	Replicas  int    `yaml:"replicas"`
-	Key       string `yaml:"key"`
-	Cache     bool   `yaml:"cache"`
-	CacheSize int    `yaml:"cache_size"`
+	HashFunc string `yaml:"hash_func"`
+	Replicas int    `yaml:"replicas"`
+	Key      string `yaml:"key"`
 }
 
 type StaticConfig struct {
-	Key       string `yaml:"key"`
-	Cache     bool   `yaml:"cache"`
-	CacheSize int    `yaml:"cache_size"`
+	Key string `yaml:"key"`
 }
 
 type DynamicConfig struct {
 	Key       string `yaml:"key"`
 	Cache     bool   `yaml:"cache"`
+	CacheType string `yaml:"cache_type"`
 	CacheSize int    `yaml:"cache_size"`
 }
 
@@ -124,6 +123,34 @@ func SetBalancerRule(config *Config, client *clientv3.Client) {
 			if err != nil {
 				log.Fatal().Msg(err.Error())
 			}
+		}
+	}
+}
+
+func SetServerConfig(config *Config, svrID string, client *clientv3.Client, endpointsNum int) {
+	serverConfig := config.Server[svrID]
+
+	for i := 0; i < endpointsNum; i++ {
+		ep := serverConfig.Endpoint
+
+		port, _ := strconv.Atoi(ep.Port)
+		port += i
+		ep.Port = strconv.Itoa(port)
+
+		key := ep.Namespace + "/" + ep.Name + "/" + ep.ToAddr()
+
+		resp, err := client.Get(context.Background(), key)
+		if err != nil {
+			log.Fatal().Msg(err.Error())
+		}
+
+		if len(resp.Kvs) == 0 {
+			log.Fatal().Msg("key not found")
+		}
+		leaseID := resp.Kvs[0].Lease
+		_, err = client.Put(context.Background(), key, ep.ToString(), clientv3.WithLease(clientv3.LeaseID(leaseID)))
+		if err != nil {
+			log.Fatal().Msg(err.Error())
 		}
 	}
 }

@@ -77,21 +77,21 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	//设置续租 定期发送需求请求
 	leaseRespChan, err := s.cli.KeepAlive(context.Background(), resp.ID)
 	if err != nil {
-		return err
+		log.Info().Msg(err.Error())
 	}
 	s.leaseID = resp.ID
 	s.keepAliveChan = leaseRespChan
 
-	log.Debug().Msg(fmt.Sprintf("Put key: %s val: %s success!\n", s.key, s.val))
+	log.Info().Msg(fmt.Sprintf("put key: %s val: %s success\n", s.key, s.val))
 	return nil
 }
 
 // ListenLeaseRespChan 监听 续租情况
 func (s *ServiceRegister) ListenLeaseRespChan() {
 	for leaseKeepResp := range s.keepAliveChan {
-		log.Debug().Msg(fmt.Sprintf("续约成功: %v", leaseKeepResp))
+		log.Debug().Msg(fmt.Sprintf("set lease success: %v", leaseKeepResp))
 	}
-	log.Debug().Msg("关闭续约")
+	log.Info().Msg("close lease")
 }
 
 // Close 注销服务
@@ -100,7 +100,7 @@ func (s *ServiceRegister) Close() error {
 	if _, err := s.cli.Revoke(context.Background(), s.leaseID); err != nil {
 		return err
 	}
-	log.Debug().Msg("撤销租约")
+	log.Info().Msg("revoke lease")
 	return s.cli.Close()
 }
 

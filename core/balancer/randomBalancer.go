@@ -2,6 +2,7 @@ package mybalancer
 
 import (
 	"sync"
+	"ziruigao/mini-game-router/core/cache"
 	"ziruigao/mini-game-router/core/config"
 	"ziruigao/mini-game-router/core/router"
 	"ziruigao/mini-game-router/core/tools"
@@ -11,6 +12,10 @@ type RandomBalancer struct {
 	randomPickMap *tools.RandomPickMap
 	pointerTable  map[string]*router.Endpoint
 	mu            sync.RWMutex
+}
+
+func (r *RandomBalancer) Name() string {
+	return "random"
 }
 
 func (r *RandomBalancer) New() MyBalancer {
@@ -35,26 +40,26 @@ func (r *RandomBalancer) Add(ep *router.Endpoint) {
 	defer r.mu.Unlock()
 
 	r.randomPickMap.Add(ep)
-	r.pointerTable[ep.ToString()] = ep
+	r.pointerTable[ep.ToAddr()] = ep
 }
 
 func (r *RandomBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ep = r.pointerTable[ep.ToString()]
-	delete(r.pointerTable, ep.ToString())
+	ep = r.pointerTable[ep.ToAddr()]
+	delete(r.pointerTable, ep.ToAddr())
 	r.randomPickMap.Remove(ep)
-}
-
-func (r *RandomBalancer) Reset() {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	r.randomPickMap.Reset()
-	r.pointerTable = map[string]*router.Endpoint{}
 }
 
 func (r *RandomBalancer) GetAll() []*router.Endpoint {
 	return r.randomPickMap.GetAll()
+}
+
+func (r *RandomBalancer) Stop() {
+
+}
+
+func (r *RandomBalancer) GetCache() cache.Cache {
+	return nil
 }

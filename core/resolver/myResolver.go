@@ -4,10 +4,8 @@ import (
 	"strings"
 	"ziruigao/mini-game-router/core/etcd"
 	nettoolkit "ziruigao/mini-game-router/core/netToolkit"
-	"ziruigao/mini-game-router/core/router"
 
 	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 )
 
@@ -43,11 +41,7 @@ func (s *MyResolver) update(prefix string) {
 	addrs := make([]resolver.Address, 0, 10)
 	for _, ep := range etcd.GetEndpoints(prefix) {
 		addr := resolver.Address{
-			Addr: ep.ToAddr(),
-			Attributes: attributes.New(router.Attribute_Key_For_Weight, ep.Weight).
-				WithValue(router.Attribute_Key_For_Wants, router.WantsToString(ep.Wants)).
-				WithValue(router.Attribute_Key_For_Namespace, ep.Namespace).
-				WithValue(router.Attribute_Key_For_Wants_Type, ep.WantsType),
+			Addr:       ep.ToAddr(),
 			ServerName: getServerName(prefix),
 		}
 		addrs = append(addrs, addr)

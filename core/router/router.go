@@ -22,13 +22,6 @@ type Endpoint struct {
 	WantsType WantsType `json:"wants_type" yaml:"wants_type"`
 }
 
-const (
-	Attribute_Key_For_Namespace  = "namespace"
-	Attribute_Key_For_Weight     = "weight"
-	Attribute_Key_For_Wants      = "wants"
-	Attribute_Key_For_Wants_Type = "wants_type"
-)
-
 type WantsType int
 
 const (

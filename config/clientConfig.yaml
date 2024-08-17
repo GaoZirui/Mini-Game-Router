@@ -7,28 +7,21 @@ etcd:
   password: ""
 balancer:
   "produce":
-    "matchsvr":
-      balancer_type: "consistent-hash"
+    "chatsvr":
+      balancer_type: "static"
+      dynamic_config:
+        key: "chat-user-id"
+        cache: true
+        cache_type: "lru"
+        cache_size: 6000
+      static_config:
+        key: "user-id"
       consistent_hash_config:
         hash_func: "crc32"
         replicas: 1000
         key: "hash-key"
-    "chatsvr":
-      balancer_type: "random"
-      dynamic_config:
-        key: "chat-user-id"
-        cache: true
-        cache_size: 6000
-      static_config:
-        key: "user-id"
-        cache: true
-        cache_size: 10240
-      consistent_hash_config:
-        hash_func: "crc32"
-        replicas: 20
-        key: "hash-key"
-        cache: true
-        cache_size: 6000
+      custom_config:
+        "test": "test"
   "test":
 redis:
   "produce":

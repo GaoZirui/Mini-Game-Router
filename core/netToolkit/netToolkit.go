@@ -87,15 +87,15 @@ func SetEndpoint(key string, endpoint *router.Endpoint, timeout time.Duration) {
 	log.Debug().Msg(fmt.Sprintf("[redis] | put key: %v val: %v\n", netToolkit.Namespace+"/"+key, endpoint.ToString()))
 }
 
-func GetEndpoint(key string) string {
+func GetEndpoint(key string) *router.Endpoint {
 	ep, err := netToolkit.RedisClient.Get(context.Background(), netToolkit.Namespace+"/"+key).Result()
 	if err == redis.Nil {
-		return ""
+		return nil
 	}
 	if err != nil {
 		log.Fatal().Msg(err.Error())
 	}
-	return ep
+	return router.ParseEndpoint(ep)
 }
 
 func ClearEndpoint(key string) {
@@ -132,11 +132,16 @@ func GetServerPerformance(ep *router.Endpoint) *metrics.ServerPerformance {
 	return metrics.ParseServerPerformance(string(resp.Kvs[0].Value))
 }
 
-func Subscribe(channel string, cache *cache.LRUCache) {
+func Subscribe(ctx context.Context, channel string, cache cache.Cache) {
 	pubsub := netToolkit.RedisClient.Subscribe(context.Background(), channel)
 	defer pubsub.Close()
 	ch := pubsub.Channel()
-	for msg := range ch {
-		cache.Delete(msg.Payload)
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case msg := <-ch:
+			cache.Delete(msg.Payload)
+		}
 	}
 }

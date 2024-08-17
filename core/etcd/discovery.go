@@ -17,23 +17,30 @@ import (
 
 // ServiceDiscovery 服务发现
 type ServiceDiscovery struct {
-	serverList   map[string]*sync.Map
-	client       *clientv3.Client
-	withBalancer bool
+	serverList map[string]*sync.Map
+	client     *clientv3.Client
 }
+
+type EtcdEvent int
+
+const (
+	EtcdEvent_Add EtcdEvent = iota
+	EtcdEvent_Update
+	EtcdEvent_Delete
+	EtcdEvent_UpdateBalancer
+)
 
 var serviceDiscovery *ServiceDiscovery
 
 // NewServiceDiscovery  新建发现服务
-func Init(client *clientv3.Client, withBalancer bool) {
+func Init(client *clientv3.Client) {
 	serviceDiscovery = &ServiceDiscovery{
-		serverList:   map[string]*sync.Map{},
-		client:       client,
-		withBalancer: withBalancer,
+		serverList: map[string]*sync.Map{},
+		client:     client,
 	}
 }
 
-func WatchPrefix(namespace, svrName string) chan struct{} {
+func WatchPrefix(namespace, svrName string) chan EtcdEvent {
 	prefix := namespace + "/" + svrName + "/"
 	resp, err := serviceDiscovery.client.Get(context.Background(), prefix, clientv3.WithPrefix())
 	if err != nil {
@@ -42,23 +49,22 @@ func WatchPrefix(namespace, svrName string) chan struct{} {
 
 	if _, exists := serviceDiscovery.serverList[prefix]; !exists {
 		serviceDiscovery.serverList[prefix] = &sync.Map{}
-
-		if serviceDiscovery.withBalancer {
-			mybalancer.SetBalancer(prefix, mybalancer.LoadBalancer(svrName))
-		}
+		mybalancer.SetBalancer(prefix, mybalancer.LoadBalancer(svrName))
 	}
 
 	for _, ev := range resp.Kvs {
 		SetServiceList(prefix, string(ev.Key), router.ParseEndpoint(string(ev.Value)))
 	}
-	notify := make(chan struct{}, 1024)
-	//监视前缀，修改变更的server
+	notify := make(chan EtcdEvent, 10000)
+	// 监视前缀，修改变更的server
 	go watcher(prefix, notify)
+	// 监视均衡负载器变更
+	go watchBalancerRule(namespace, svrName, notify)
 	return notify
 }
 
 // watcher 监听前缀
-func watcher(prefix string, notify chan struct{}) {
+func watcher(prefix string, notify chan EtcdEvent) {
 	rch := serviceDiscovery.client.Watch(context.Background(), prefix, clientv3.WithPrefix())
 	log.Info().Msg(fmt.Sprintf("watching prefix: %s now...\n", prefix))
 	for wresp := range rch {
@@ -66,21 +72,48 @@ func watcher(prefix string, notify chan struct{}) {
 			switch ev.Type {
 			case mvccpb.PUT: //修改或者新增
 				ep := router.ParseEndpoint(string(ev.Kv.Value))
+				_, exists := serviceDiscovery.serverList[prefix]
 				SetServiceList(prefix, string(ev.Kv.Key), ep)
+				if exists {
+					notify <- EtcdEvent_Update
+					log.Debug().Msg(fmt.Sprintf("update server to: %v\n", ep.ToString()))
+				} else {
+					notify <- EtcdEvent_Add
+				}
 			case mvccpb.DELETE: //删除
 				DelServiceList(prefix, string(ev.Kv.Key))
+				notify <- EtcdEvent_Delete
 			}
 		}
-		notify <- struct{}{}
+	}
+}
+
+func watchBalancerRule(namespace, svrName string, notify chan EtcdEvent) {
+	prefix := namespace + "/" + svrName + "/"
+	rch := serviceDiscovery.client.Watch(context.Background(), "config/"+namespace+"/"+svrName, clientv3.WithPrefix())
+	log.Info().Msg(fmt.Sprintf("watching prefix: %s now...\n", "config/"+namespace+"/"+svrName))
+	for wresp := range rch {
+		for _, ev := range wresp.Events {
+			switch ev.Type {
+			case mvccpb.PUT: //修改或者新增
+				newBalancer := mybalancer.LoadBalancer(svrName)
+				for _, ep := range mybalancer.GetBalancer(prefix).GetAll() {
+					newBalancer.Add(ep)
+				}
+				mybalancer.SetBalancer(prefix, newBalancer)
+				log.Info().Msg(fmt.Sprintf("change to balancer type: %v\n", mybalancer.GetBalancer(prefix).Name()))
+				notify <- EtcdEvent_UpdateBalancer
+			case mvccpb.DELETE: //删除
+				log.Fatal().Msg("invalid oprations")
+			}
+		}
 	}
 }
 
 // SetServiceList 新增服务地址
 func SetServiceList(prefix, key string, ep *router.Endpoint) {
 	serviceDiscovery.serverList[prefix].Store(key, ep)
-	if serviceDiscovery.withBalancer {
-		mybalancer.GetBalancer(prefix).Add(ep)
-	}
+	mybalancer.GetBalancer(prefix).Add(ep)
 	log.Debug().Msg(fmt.Sprintf("put key: %v val: %v", key, ep.ToString()))
 }
 
@@ -88,17 +121,13 @@ func SetServiceList(prefix, key string, ep *router.Endpoint) {
 func DelServiceList(prefix, key string) {
 	e, _ := serviceDiscovery.serverList[prefix].LoadAndDelete(key)
 	ep, _ := e.(*router.Endpoint)
-	if serviceDiscovery.withBalancer {
-		mybalancer.GetBalancer(prefix).Remove(ep)
-	}
+	mybalancer.GetBalancer(prefix).Remove(ep)
 	log.Debug().Msg(fmt.Sprintf("del key: %v", key))
 }
 
 func GetEndpoints(prefix string) []*router.Endpoint {
-	if serviceDiscovery.withBalancer {
-		if mybalancer.GetBalancer(prefix) != nil {
-			return mybalancer.GetBalancer(prefix).GetAll()
-		}
+	if mybalancer.GetBalancer(prefix) != nil {
+		return mybalancer.GetBalancer(prefix).GetAll()
 	}
 	addrs := make([]*router.Endpoint, 0, 10)
 	serviceDiscovery.serverList[prefix].Range(func(k, v interface{}) bool {
@@ -112,9 +141,7 @@ func PickEndpoint(svrName string, pickRule PickRule) *router.Endpoint {
 	prefix := nettoolkit.GetNamespace() + "/" + svrName + "/"
 	if _, exists := serviceDiscovery.serverList[prefix]; !exists {
 		serviceDiscovery.serverList[prefix] = &sync.Map{}
-		if serviceDiscovery.withBalancer {
-			mybalancer.SetBalancer(prefix, mybalancer.LoadBalancer(svrName))
-		}
+		mybalancer.SetBalancer(prefix, mybalancer.LoadBalancer(svrName))
 		resp, err := serviceDiscovery.client.Get(context.Background(), prefix, clientv3.WithPrefix())
 		if err != nil {
 			log.Fatal().Msg(err.Error())

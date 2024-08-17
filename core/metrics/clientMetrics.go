@@ -32,6 +32,7 @@ func NewClientMetrics() *ClientMetrics {
 		Name: "grpc_request_duration_seconds",
 		Help: "A summary of the GRPC request durations in seconds.",
 		Objectives: map[float64]float64{
+			0.1:  0.05,
 			0.5:  0.05,  // 第50个百分位数，最大绝对误差为0.05。
 			0.9:  0.01,  // 第90个百分位数，最大绝对误差为0.01。
 			0.99: 0.001, // 第99个百分位数，最大绝对误差为0.001。

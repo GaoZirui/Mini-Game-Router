@@ -3,6 +3,7 @@ package mybalancer
 import (
 	"math/rand"
 	"sync"
+	"ziruigao/mini-game-router/core/cache"
 	"ziruigao/mini-game-router/core/config"
 	"ziruigao/mini-game-router/core/router"
 	"ziruigao/mini-game-router/core/tools"
@@ -17,6 +18,10 @@ type WeightBalancer struct {
 
 func (r *WeightBalancer) New() MyBalancer {
 	return &WeightBalancer{}
+}
+
+func (r *WeightBalancer) Name() string {
+	return "weight"
 }
 
 func (r *WeightBalancer) Init(config *config.BalancerRule) {
@@ -53,7 +58,12 @@ func (r *WeightBalancer) Add(ep *router.Endpoint) {
 	defer r.mu.Unlock()
 
 	r.randomPickMap.Add(ep)
-	r.pointerTable[ep.ToString()] = ep
+
+	if e, exists := r.pointerTable[ep.ToAddr()]; exists {
+		r.totalWeight -= e.Weight
+	}
+
+	r.pointerTable[ep.ToAddr()] = ep
 	r.totalWeight += ep.Weight
 }
 
@@ -61,22 +71,21 @@ func (r *WeightBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ep = r.pointerTable[ep.ToString()]
-	delete(r.pointerTable, ep.ToString())
+	ep = r.pointerTable[ep.ToAddr()]
+	delete(r.pointerTable, ep.ToAddr())
 
 	r.randomPickMap.Remove(ep)
 	r.totalWeight -= ep.Weight
 }
 
-func (r *WeightBalancer) Reset() {
-	r.mu.Lock()
-	defer r.mu.Unlock()
-
-	r.randomPickMap.Reset()
-	r.pointerTable = map[string]*router.Endpoint{}
-	r.totalWeight = 0
-}
-
 func (r *WeightBalancer) GetAll() []*router.Endpoint {
 	return r.randomPickMap.GetAll()
+}
+
+func (r *WeightBalancer) Stop() {
+
+}
+
+func (r *WeightBalancer) GetCache() cache.Cache {
+	return nil
 }

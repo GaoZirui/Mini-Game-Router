@@ -24,7 +24,7 @@ server:
       namespace: "produce"
       ip: "localhost"
       port: "12000"
-      weight: 10
+      weight: 500
       wants_type: all_match
       wants:
         - match_type: prefix

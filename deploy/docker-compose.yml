@@ -23,71 +23,84 @@ services:
     networks:
       - app-tier
   # redis-1配置
-  redis-1:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-1
+  # redis-1:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-1
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9001:9001
+  #   volumes:
+  #     - ../redis-cluster/9001/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-2配置
+  # redis-2:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-2
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9002:9002
+  #   volumes:
+  #     - ../redis-cluster/9002/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-3配置
+  # redis-3:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-3
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9003:9003
+  #   volumes:
+  #     - ../redis-cluster/9003/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-4配置
+  # redis-4:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-4
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9004:9004
+  #   volumes:
+  #     - ../redis-cluster/9004/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-5配置
+  # redis-5:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-5
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9005:9005
+  #   volumes:
+  #     - ../redis-cluster/9005/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  # # redis-6配置
+  # redis-6:
+  #   image: daocloud.io/library/redis:latest
+  #   container_name: redis-6
+  #   restart: always
+  #   network_mode: "host"
+  #   ports:
+  #     - 9006:9006
+  #   volumes:
+  #     - ../redis-cluster/9006/redis.conf:/app/redis.conf
+  #   command: ["redis-server", "/app/redis.conf"]
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: redis
     restart: always
-    network_mode: "host"
+    user: root
     ports:
-      - 9001:9001
+      - 6379:6379
     volumes:
-      - ../redis-cluster/9001/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
-  # redis-2配置
-  redis-2:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-2
-    restart: always
-    network_mode: "host"
-    ports:
-      - 9002:9002
-    volumes:
-      - ../redis-cluster/9002/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
-  # redis-3配置
-  redis-3:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-3
-    restart: always
-    network_mode: "host"
-    ports:
-      - 9003:9003
-    volumes:
-      - ../redis-cluster/9003/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
-  # redis-4配置
-  redis-4:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-4
-    restart: always
-    network_mode: "host"
-    ports:
-      - 9004:9004
-    volumes:
-      - ../redis-cluster/9004/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
-  # redis-5配置
-  redis-5:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-5
-    restart: always
-    network_mode: "host"
-    ports:
-      - 9005:9005
-    volumes:
-      - ../redis-cluster/9005/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
-  # redis-6配置
-  redis-6:
-    image: daocloud.io/library/redis:latest
-    container_name: redis-6
-    restart: always
-    network_mode: "host"
-    ports:
-      - 9006:9006
-    volumes:
-      - ../redis-cluster/9006/redis.conf:/app/redis.conf
-    command: ["redis-server", "/app/redis.conf"]
+      - '.dbdata/redis:/bitnami/redis'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - app-tier
   server-1:
     image: 'mini-game-router-server:latest'
     container_name: server-1
@@ -153,12 +166,7 @@ services:
     command: sleep infinity
     depends_on:
       - etcd
-      - redis-1
-      - redis-2
-      - redis-3
-      - redis-4
-      - redis-5
-      - redis-6
+      - redis
       - server-1
       - server-2
       - server-3

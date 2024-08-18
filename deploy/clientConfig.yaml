@@ -28,7 +28,7 @@ balancer:
 redis:
   "produce":
     addrs:
-      - "localhost:9001"
+      - "redis:6379"
       - "localhost:9002"
       - "localhost:9003"
       - "localhost:9004"

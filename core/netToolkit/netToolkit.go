@@ -17,7 +17,7 @@ import (
 
 type NetToolkit struct {
 	EtcdClient  *clientv3.Client
-	RedisClient *redis.ClusterClient
+	RedisClient *redis.Client
 	Namespace   string
 }
 
@@ -31,7 +31,7 @@ func GetEtcdClient() *clientv3.Client {
 	return netToolkit.EtcdClient
 }
 
-func GetRedisClient() *redis.ClusterClient {
+func GetRedisClient() *redis.Client {
 	return netToolkit.RedisClient
 }
 
@@ -52,8 +52,8 @@ func Init(conf *config.EtcdConfig, namespace string) {
 
 	redisConfig := config.GetRedisConfig(namespace, etcdCli)
 
-	redisCli := redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:        redisConfig.Addrs,
+	redisCli := redis.NewClient(&redis.Options{
+		Addr:         redisConfig.Addrs[0],
 		Username:     redisConfig.Username,
 		Password:     redisConfig.Password,
 		DialTimeout:  redisConfig.DialTimeout,

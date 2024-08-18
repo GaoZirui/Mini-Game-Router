@@ -29,6 +29,7 @@ type EtcdConfig struct {
 	DialTimeout time.Duration `yaml:"dial_timeout"`
 	Username    string        `yaml:"username"`
 	Password    string        `yaml:"password"`
+	RecoverTime time.Duration `yaml:"recover_time"`
 }
 
 type BalancerRule struct {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sync"
+	"time"
 	mybalancer "ziruigao/mini-game-router/core/balancer"
 	"ziruigao/mini-game-router/core/metrics"
 	nettoolkit "ziruigao/mini-game-router/core/netToolkit"
@@ -17,8 +18,10 @@ import (
 
 // ServiceDiscovery 服务发现
 type ServiceDiscovery struct {
-	serverList map[string]*sync.Map
-	client     *clientv3.Client
+	serverList  map[string]*sync.Map
+	client      *clientv3.Client
+	cancelMap   map[string]context.CancelFunc
+	recoverTime time.Duration
 }
 
 type EtcdEvent int
@@ -33,10 +36,12 @@ const (
 var serviceDiscovery *ServiceDiscovery
 
 // NewServiceDiscovery  新建发现服务
-func Init(client *clientv3.Client) {
+func Init(client *clientv3.Client, recoverTime time.Duration) {
 	serviceDiscovery = &ServiceDiscovery{
-		serverList: map[string]*sync.Map{},
-		client:     client,
+		serverList:  map[string]*sync.Map{},
+		client:      client,
+		cancelMap:   map[string]context.CancelFunc{},
+		recoverTime: recoverTime,
 	}
 }
 
@@ -69,20 +74,55 @@ func watcher(prefix string, notify chan EtcdEvent) {
 	log.Info().Msg(fmt.Sprintf("watching prefix: %s now...\n", prefix))
 	for wresp := range rch {
 		for _, ev := range wresp.Events {
+			key := string(ev.Kv.Key)
+			_, exists := serviceDiscovery.serverList[prefix].Load(key)
+
 			switch ev.Type {
-			case mvccpb.PUT: //修改或者新增
+			case mvccpb.PUT: // 修改或者新增
 				ep := router.ParseEndpoint(string(ev.Kv.Value))
-				_, exists := serviceDiscovery.serverList[prefix]
-				SetServiceList(prefix, string(ev.Kv.Key), ep)
+
+				// 主动关闭服务器
+				if exists && ep.State == router.State_Closing {
+					DelServiceList(prefix, key)
+					notify <- EtcdEvent_Delete
+					continue
+				}
+
+				// 服务器恢复
+				if exists {
+					if cancel, ok := serviceDiscovery.cancelMap[key]; ok {
+						cancel()
+						delete(serviceDiscovery.cancelMap, key)
+					}
+				}
+
+				// 修改或者新增
+				SetServiceList(prefix, key, ep)
 				if exists {
 					notify <- EtcdEvent_Update
-					log.Debug().Msg(fmt.Sprintf("update server to: %v\n", ep.ToString()))
 				} else {
 					notify <- EtcdEvent_Add
 				}
-			case mvccpb.DELETE: //删除
-				DelServiceList(prefix, string(ev.Kv.Key))
-				notify <- EtcdEvent_Delete
+			case mvccpb.DELETE: // 服务器掉线
+				if !exists {
+					continue
+				}
+
+				// 延迟删除
+				ctx, cancel := context.WithCancel(context.Background())
+				serviceDiscovery.cancelMap[key] = cancel
+
+				go func() {
+					select {
+					case <-ctx.Done():
+						log.Debug().Msg("Server recover success! Cancel delete goroutine!")
+					case <-time.After(serviceDiscovery.recoverTime):
+						log.Debug().Msg("Server recover fail!")
+						DelServiceList(prefix, key)
+						delete(serviceDiscovery.cancelMap, key)
+						notify <- EtcdEvent_Delete
+					}
+				}()
 			}
 		}
 	}

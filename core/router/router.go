@@ -20,6 +20,7 @@ type Endpoint struct {
 	Weight    int       `json:"weight" yaml:"weight"`
 	Wants     []*Match  `json:"wants" yaml:"wants"`
 	WantsType WantsType `json:"wants_type" yaml:"wants_type"`
+	State     State     `json:"state" yaml:"state"`
 }
 
 type WantsType int
@@ -43,6 +44,25 @@ func (wt *WantsType) UnmarshalYAML(value *yaml.Node) error {
 		*wt = Wants_Has_Not_Match
 	default:
 		return fmt.Errorf("wants_type must be one of all_match, has_match, all_not_match or has_not_match")
+	}
+	return nil
+}
+
+type State int
+
+const (
+	State_Alive State = iota
+	State_Closing
+)
+
+func (s *State) UnmarshalYAML(value *yaml.Node) error {
+	switch strings.ToLower(value.Value) {
+	case "alive":
+		*s = State_Alive
+	case "closing":
+		*s = State_Closing
+	default:
+		return fmt.Errorf("state must be one of alive or closing")
 	}
 	return nil
 }

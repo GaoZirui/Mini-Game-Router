@@ -5,10 +5,11 @@ etcd:
   dial_timeout: 5s
   username: ""
   password: ""
+  recover_time: 5s
 balancer:
   "produce":
     "chatsvr":
-      balancer_type: "dynamic"
+      balancer_type: "random"
       dynamic_config:
         key: "chat-user-id"
         cache: true

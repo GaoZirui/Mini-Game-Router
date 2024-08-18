@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"ziruigao/mini-game-router/core/config"
+	"ziruigao/mini-game-router/core/router"
 
 	"github.com/rs/zerolog/log"
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -51,6 +52,26 @@ func main() {
 		}
 
 		for _, svr := range strings.Split(*svrID, ",") {
+			config.SetServerConfig(serverConf, svr, client, *endpointsNum)
+		}
+	case "close-server":
+		serverConf, err := config.LoadConfig(*serverConfigPath)
+		if err != nil {
+			log.Panic().Msg(err.Error())
+		}
+
+		for _, svr := range strings.Split(*svrID, ",") {
+			serverConf.Server[svr].Endpoint.State = router.State_Closing
+			config.SetServerConfig(serverConf, svr, client, *endpointsNum)
+		}
+	case "up-server":
+		serverConf, err := config.LoadConfig(*serverConfigPath)
+		if err != nil {
+			log.Panic().Msg(err.Error())
+		}
+
+		for _, svr := range strings.Split(*svrID, ",") {
+			serverConf.Server[svr].Endpoint.State = router.State_Alive
 			config.SetServerConfig(serverConf, svr, client, *endpointsNum)
 		}
 	case "clear":

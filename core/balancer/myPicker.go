@@ -15,6 +15,10 @@ const (
 	name = "mybalancer"
 )
 
+var (
+	currentPicker *myPicker
+)
+
 type myPickerBuilder struct {
 	blcs map[string]MyBalancer
 }
@@ -32,15 +36,20 @@ func (r *myPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 			svrName = addr.Address.ServerName
 			// 直到连接上全部子连接才允许 Build
 			if len(info.ReadySCs) != len(GetBalancer(nettoolkit.GetNamespace()+"/"+svrName+"/").GetAll()) {
-				return nil
+				if currentPicker == nil {
+					return nil
+				} else {
+					return currentPicker
+				}
 			}
 		}
 		scs[addr.Address.Addr] = subConn
 	}
-	return &myPicker{
+	currentPicker = &myPicker{
 		subConns: scs,
 		blc:      GetBalancer(nettoolkit.GetNamespace() + "/" + svrName + "/"),
 	}
+	return currentPicker
 }
 
 type myPicker struct {
@@ -62,6 +71,7 @@ func (p *myPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 }
 
 func Init() {
+	currentPicker = nil
 	balancer.Register(base.NewBalancerBuilder(name, &myPickerBuilder{
 		blcs: map[string]MyBalancer{},
 	}, base.Config{HealthCheck: true}))

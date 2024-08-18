@@ -48,4 +48,10 @@ go run client.go --configPath=../../../config/clientConfig.yaml --userNum=3 --re
 # update config
 go run control.go --op=set-server
 go run control.go --op=set-client
+
+# close server
+go run control.go --op=close-server
+
+# up server
+go run control.go --op=up-server
 ```

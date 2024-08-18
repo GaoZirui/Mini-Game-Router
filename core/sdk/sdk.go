@@ -22,7 +22,7 @@ var (
 func InitForGrpc(config *config.EtcdConfig, namespace string) {
 	onceForGrpc.Do(func() {
 		nettoolkit.Init(config, namespace)
-		etcd.Init(nettoolkit.GetEtcdClient())
+		etcd.Init(nettoolkit.GetEtcdClient(), config.RecoverTime)
 		myresolver.Init()
 		mybalancer.Init()
 		mybalancer.InitBalancers()
@@ -34,7 +34,7 @@ func InitForGrpc(config *config.EtcdConfig, namespace string) {
 func Init(config *config.EtcdConfig, namespace string) {
 	once.Do(func() {
 		nettoolkit.Init(config, namespace)
-		etcd.Init(nettoolkit.GetEtcdClient())
+		etcd.Init(nettoolkit.GetEtcdClient(), config.RecoverTime)
 		mybalancer.InitBalancers()
 		mybalancer.InitRegistry()
 		cache.InitRegistry()
@@ -98,8 +98,7 @@ func CallWithRetry(retry RetryFunc, deal DealFunc) {
 	for {
 		err := retry()
 		if err != nil {
-			log.Fatal().Msg(err.Error())
-			// log.Debug().Msg(err.Error())
+			log.Debug().Msg(err.Error())
 			time.Sleep(time.Second)
 			deal()
 		} else {

@@ -96,6 +96,15 @@ func (s *ServiceRegister) ListenLeaseRespChan() {
 
 // Close 注销服务
 func (s *ServiceRegister) Close() error {
+	ep := router.ParseEndpoint(s.val)
+	ep.State = router.State_Closing
+	_, err := s.cli.Put(context.Background(), s.key, ep.ToString(), clientv3.WithLease(clientv3.LeaseID(s.leaseID)))
+	if err != nil {
+		log.Fatal().Msg(err.Error())
+	}
+
+	time.Sleep(time.Second)
+
 	//撤销租约
 	if _, err := s.cli.Revoke(context.Background(), s.leaseID); err != nil {
 		return err

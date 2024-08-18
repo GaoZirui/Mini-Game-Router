@@ -33,6 +33,10 @@ var (
 	namespace  = flag.String("namespace", "produce", "namespace for grpc call")
 	debug      = flag.Bool("debug", false, "set log level to debug")
 	coreNum    = flag.Int("coreNum", 1, "num of cpu to use")
+	sleepTime  = flag.Int("sleepTime", 500, "sleep time")
+	usePayload = flag.Bool("usePayload", false, "whether to use 100B payload")
+	showReply  = flag.Bool("showReply", false, "whether to show reply")
+	countReply = flag.Bool("countReply", false, "whether to count reply")
 )
 
 const (
@@ -111,7 +115,7 @@ func main() {
 	for user := 0; user < int(*userNum); user++ {
 		userID := user
 		ep := sdk.PickEndpointByServerPerformance("chatsvr", etcd.Random)
-		// fmt.Printf("user%v choose: %v\n", userID, ep.Port)
+		fmt.Printf("user%v choose: %v\n", userID, ep.Port)
 		sdk.SetEndpoint("chat-user"+strconv.Itoa(userID), ep, 0)
 		wg.Add(1)
 		client := pb.NewHelloServiceClient(conn)
@@ -122,22 +126,32 @@ func main() {
 				reply := &pb.HelloReply{}
 				sdk.CallWithRetry(func() error {
 					timer := prometheus.NewTimer(clientMetrics.RequestDurations)
-					reply, err = client.SayHello(ctx, &pb.HelloRequest{
-						Name: payload,
-					})
+					if *usePayload {
+						reply, err = client.SayHello(ctx, &pb.HelloRequest{
+							Name: payload,
+						})
+					} else {
+						reply, err = client.SayHello(ctx, &pb.HelloRequest{
+							Name: "user" + strconv.Itoa(userID) + " test" + strconv.Itoa(i),
+						})
+					}
 					timer.ObserveDuration()
 					return err
 				}, func() {})
-				if strings.HasSuffix(reply.Message, "10000") {
-					atomic.AddInt64(&cnt1, 1)
-				} else if strings.HasSuffix(reply.Message, "12000") {
-					atomic.AddInt64(&cnt2, 1)
-				} else {
-					atomic.AddInt64(&cnt3, 1)
+				if *countReply {
+					if strings.HasSuffix(reply.Message, "10000") {
+						atomic.AddInt64(&cnt1, 1)
+					} else if strings.HasSuffix(reply.Message, "12000") {
+						atomic.AddInt64(&cnt2, 1)
+					} else {
+						atomic.AddInt64(&cnt3, 1)
+					}
 				}
-				// fmt.Println(reply.Message)
+				if *showReply {
+					fmt.Println(reply.Message)
+				}
 				clientMetrics.TotalResponseNumber.Inc()
-				time.Sleep(time.Millisecond * 500)
+				time.Sleep(time.Millisecond * (time.Duration(*sleepTime)))
 			}
 		}()
 	}

@@ -24,21 +24,9 @@ var (
 	configPath    = flag.String("configPath", "serverConfig.yaml", "config file path")
 	svrID         = flag.String("svrID", "svr", "id for server")
 	endpointsNum  = flag.Int64("endpointsNum", 1, "num of endpoints for this server")
+	showReceive   = flag.Bool("showReceive", false, "whether to show receive")
 	conf          *config.ServerConfig
 	serverMetrics *metrics.ServerMetrics
-)
-
-const (
-	payload = "AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA" +
-		"AAAAAAAAAA"
 )
 
 type HelloServer struct {
@@ -52,9 +40,11 @@ func (s *HelloServer) SayHello(ctx context.Context, request *pb.HelloRequest) (*
 		serverMetrics.TotalRequestNumber.Inc()
 		serverMetrics.AddRequestNum()
 	}()
-	fmt.Println("receive: ")
+	if *showReceive {
+		fmt.Println("receive: ", request.Name)
+	}
 	return &pb.HelloReply{
-		Message: payload + conf.Endpoint.Port,
+		Message: "hello: " + request.Name + " this is " + conf.Endpoint.Port,
 	}, nil
 }
 

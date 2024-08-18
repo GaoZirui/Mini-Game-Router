@@ -5,40 +5,35 @@ etcd:
   dial_timeout: 5s
   username: ""
   password: ""
+  recover_time: 5s
 balancer:
   "produce":
-    "matchsvr":
-      balancer_type: "consistent-hash"
-      consistent_hash_config:
-        hash_func: "crc32"
-        replicas: 1000
-        key: "hash-key"
     "chatsvr":
-      balancer_type: "dynamic"
+      balancer_type: "random"
       dynamic_config:
         key: "chat-user-id"
         cache: true
-        cache_size: 1024
+        cache_type: "lru"
+        cache_size: 6000
+        auto_flush: true
       static_config:
         key: "user-id"
-        cache: true
-        cache_size: 1024
       consistent_hash_config:
         hash_func: "crc32"
         replicas: 10
         key: "hash-key"
-        cache: true
-        cache_size: 1024
+      custom_config:
+        "test": "test"
   "test":
 redis:
   "produce":
     addrs:
-      - "9.134.61.100:9001"
-      - "9.134.61.100:9002"
-      - "9.134.61.100:9003"
-      - "9.134.61.100:9004"
-      - "9.134.61.100:9005"
-      - "9.134.61.100:9006"
+      - "localhost:9001"
+      - "localhost:9002"
+      - "localhost:9003"
+      - "localhost:9004"
+      - "localhost:9005"
+      - "localhost:9006"
     username: ""
     password: ""
     dial_timeout: 5s

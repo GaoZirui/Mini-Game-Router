@@ -43,7 +43,7 @@ func NewClientMetrics() *ClientMetrics {
 
 	go func() {
 		http.Handle("/metrics", promhttp.HandlerFor(clientMetrics.Registry, promhttp.HandlerOpts{Registry: clientMetrics.Registry}))
-		http.ListenAndServe(":8081", nil)
+		http.ListenAndServe(":8080", nil)
 	}()
 
 	return clientMetrics

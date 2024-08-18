@@ -94,9 +94,10 @@ services:
     restart: no
     ports:
       - 18080:8080
+      - "10000-10010:10000-10010"
     volumes:
       - './serverConfig.yaml:/app/serverConfig.yaml'
-    command: ./server --svrID=server-1 --endpointsNum=100
+    command: sleep infinity
     depends_on:
       - etcd
     networks:
@@ -107,9 +108,10 @@ services:
     restart: no
     ports:
       - 18081:8080
+      - "12000-12010:12000-12010"
     volumes:
       - './serverConfig.yaml:/app/serverConfig.yaml'
-    command: ./server --svrID=server-2 --endpointsNum=100
+    command: sleep infinity
     depends_on:
       - etcd
     networks:
@@ -120,9 +122,10 @@ services:
     restart: no
     ports:
       - 18082:8080
+      - "14000-14010:14000-14010"
     volumes:
       - './serverConfig.yaml:/app/serverConfig.yaml'
-    command: ./server --svrID=server-3 --endpointsNum=100
+    command: sleep infinity
     depends_on:
       - etcd
     networks:
@@ -133,7 +136,8 @@ services:
     restart: no
     volumes:
       - './clientConfig.yaml:/app/clientConfig.yaml'
-    command: ./control
+      - './serverConfig.yaml:/app/serverConfig.yaml'
+    command: sleep infinity
     depends_on:
       - etcd
     networks:

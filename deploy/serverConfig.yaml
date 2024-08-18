@@ -17,6 +17,7 @@ server:
       wants:
         - match_type: prefix
           pattern: "user1"
+      state: alive
     lease: 1
   "server-2":
     endpoint:
@@ -24,11 +25,12 @@ server:
       namespace: "produce"
       ip: "server-2"
       port: "12000"
-      weight: 10
+      weight: 500
       wants_type: all_match
       wants:
         - match_type: prefix
           pattern: "user2"
+      state: alive
     lease: 1
   "server-3":
     endpoint:
@@ -43,4 +45,5 @@ server:
           pattern: "user1"
         - match_type: prefix
           pattern: "user2"
+      state: alive
     lease: 1

@@ -19,8 +19,19 @@ $ redis-cli --cluster create 127.0.0.1:9001 \
 $ yes
 
 $ cd deploy
+
 $ docker-compose exec control ./control
-$ docker-compose exec client ./client --userNum=5000 --requestNum=2000 --coreNum=4
+
+$ docker-compose exec server-1 ./server --svrID=server-1 --endpointsNum=5 --showReceive
+$ docker-compose exec server-1 ./server --svrID=server-2 --endpointsNum=5 --showReceive
+$ docker-compose exec server-1 ./server --svrID=server-3 --endpointsNum=5 --showReceive
+
+$ docker-compose exec client ./client --userNum=3 --requestNum=2000 --coreNum=4 --showReply --debug
+
+$ docker-compose exec control ./control --op=set-server
+$ docker-compose exec control ./control --op=set-client
+$ docker-compose exec control ./control --op=close-server
+$ docker-compose exec control ./control --op=up-server
 ```
 
 ## Clean ETCD

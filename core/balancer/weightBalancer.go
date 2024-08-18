@@ -12,7 +12,6 @@ import (
 type WeightBalancer struct {
 	mu            sync.RWMutex
 	randomPickMap *tools.RandomPickMap
-	pointerTable  map[string]*router.Endpoint
 	totalWeight   int
 }
 
@@ -27,7 +26,6 @@ func (r *WeightBalancer) Name() string {
 func (r *WeightBalancer) Init(config *config.BalancerRule) {
 	r.mu = sync.RWMutex{}
 	r.randomPickMap = tools.NewRandomPickMap()
-	r.pointerTable = map[string]*router.Endpoint{}
 }
 
 func (r *WeightBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
@@ -57,22 +55,18 @@ func (r *WeightBalancer) Add(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.randomPickMap.Add(ep)
-
-	if e, exists := r.pointerTable[ep.ToAddr()]; exists {
+	if exists, e := r.randomPickMap.Contains(ep); exists {
 		r.totalWeight -= e.Weight
 	}
 
-	r.pointerTable[ep.ToAddr()] = ep
+	r.randomPickMap.Add(ep)
+
 	r.totalWeight += ep.Weight
 }
 
 func (r *WeightBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
-	ep = r.pointerTable[ep.ToAddr()]
-	delete(r.pointerTable, ep.ToAddr())
 
 	r.randomPickMap.Remove(ep)
 	r.totalWeight -= ep.Weight

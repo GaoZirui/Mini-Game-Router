@@ -8,17 +8,18 @@ etcd:
 balancer:
   "produce":
     "chatsvr":
-      balancer_type: "static"
+      balancer_type: "dynamic"
       dynamic_config:
         key: "chat-user-id"
         cache: true
         cache_type: "lru"
         cache_size: 6000
+        auto_flush: true
       static_config:
         key: "user-id"
       consistent_hash_config:
         hash_func: "crc32"
-        replicas: 1000
+        replicas: 10
         key: "hash-key"
       custom_config:
         "test": "test"

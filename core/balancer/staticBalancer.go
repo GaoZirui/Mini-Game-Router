@@ -10,7 +10,6 @@ import (
 
 type StaticBalancer struct {
 	randomPickMap *tools.RandomPickMap
-	pointerTable  map[string]*router.Endpoint
 	mu            sync.RWMutex
 	key           string
 }
@@ -27,7 +26,6 @@ func (r *StaticBalancer) Init(config *config.BalancerRule) {
 	r.randomPickMap = tools.NewRandomPickMap()
 	r.mu = sync.RWMutex{}
 	r.key = config.StaticConfig.Key
-	r.pointerTable = map[string]*router.Endpoint{}
 }
 
 func (r *StaticBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
@@ -50,16 +48,12 @@ func (r *StaticBalancer) Add(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.pointerTable[ep.ToAddr()] = ep
 	r.randomPickMap.Add(ep)
 }
 
 func (r *StaticBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-
-	ep = r.pointerTable[ep.ToAddr()]
-	delete(r.pointerTable, ep.ToAddr())
 
 	r.randomPickMap.Remove(ep)
 }

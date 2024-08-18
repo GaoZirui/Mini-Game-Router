@@ -66,7 +66,11 @@ func (r *RandomPickMap) RandomPick() *router.Endpoint {
 	return r.eps[r.rng.Uint32n(uint32(len(r.eps)))]
 }
 
-func (r *RandomPickMap) Contains(ep *router.Endpoint) bool {
-	_, exists := r.epsMap[ep.ToAddr()]
-	return exists
+func (r *RandomPickMap) Contains(ep *router.Endpoint) (bool, *router.Endpoint) {
+	index, exists := r.epsMap[ep.ToAddr()]
+	if exists {
+		return exists, r.eps[index]
+	} else {
+		return exists, nil
+	}
 }

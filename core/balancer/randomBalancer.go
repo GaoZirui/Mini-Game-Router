@@ -10,7 +10,6 @@ import (
 
 type RandomBalancer struct {
 	randomPickMap *tools.RandomPickMap
-	pointerTable  map[string]*router.Endpoint
 	mu            sync.RWMutex
 }
 
@@ -24,7 +23,6 @@ func (r *RandomBalancer) New() MyBalancer {
 
 func (r *RandomBalancer) Init(config *config.BalancerRule) {
 	r.randomPickMap = tools.NewRandomPickMap()
-	r.pointerTable = map[string]*router.Endpoint{}
 	r.mu = sync.RWMutex{}
 }
 
@@ -40,15 +38,12 @@ func (r *RandomBalancer) Add(ep *router.Endpoint) {
 	defer r.mu.Unlock()
 
 	r.randomPickMap.Add(ep)
-	r.pointerTable[ep.ToAddr()] = ep
 }
 
 func (r *RandomBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ep = r.pointerTable[ep.ToAddr()]
-	delete(r.pointerTable, ep.ToAddr())
 	r.randomPickMap.Remove(ep)
 }
 

@@ -8,18 +8,19 @@ import (
 	"ziruigao/mini-game-router/core/cache"
 	"ziruigao/mini-game-router/core/config"
 	"ziruigao/mini-game-router/core/router"
+	"ziruigao/mini-game-router/core/tools"
 )
 
 type hash func(data []byte) uint32
 
 type ConsistentHashBalancer struct {
-	hash         hash
-	replicas     int
-	ring         []int
-	nodes        map[int]*router.Endpoint
-	mu           sync.RWMutex
-	key          string
-	pointerTable map[string]*router.Endpoint
+	hash          hash
+	replicas      int
+	ring          []int
+	nodes         map[int]*router.Endpoint
+	mu            sync.RWMutex
+	key           string
+	randomPickMap *tools.RandomPickMap
 }
 
 func (c *ConsistentHashBalancer) Name() string {
@@ -43,7 +44,7 @@ func (c *ConsistentHashBalancer) Init(config *config.BalancerRule) {
 	c.nodes = map[int]*router.Endpoint{}
 	c.mu = sync.RWMutex{}
 	c.key = conf.Key
-	c.pointerTable = map[string]*router.Endpoint{}
+	c.randomPickMap = tools.NewRandomPickMap()
 }
 
 func (c *ConsistentHashBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
@@ -72,7 +73,7 @@ func (c *ConsistentHashBalancer) Add(ep *router.Endpoint) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	if _, exists := c.pointerTable[ep.ToAddr()]; !exists {
+	if exists, _ := c.randomPickMap.Contains(ep); !exists {
 		for i := 0; i < c.replicas; i++ {
 			hash := int(c.hash([]byte(ep.ToAddr() + "@" + strconv.Itoa(i))))
 			c.ring = append(c.ring, hash)
@@ -81,15 +82,14 @@ func (c *ConsistentHashBalancer) Add(ep *router.Endpoint) {
 		sort.Ints(c.ring)
 	}
 
-	c.pointerTable[ep.ToAddr()] = ep
+	c.randomPickMap.Add(ep)
 }
 
 func (c *ConsistentHashBalancer) Remove(ep *router.Endpoint) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	ep = c.pointerTable[ep.ToAddr()]
-	delete(c.pointerTable, ep.ToAddr())
+	c.randomPickMap.Remove(ep)
 
 	for i := 0; i < c.replicas; i++ {
 		hash := int(c.hash([]byte(ep.ToAddr() + "@" + strconv.Itoa(i))))
@@ -107,11 +107,7 @@ func (c *ConsistentHashBalancer) Remove(ep *router.Endpoint) {
 }
 
 func (c *ConsistentHashBalancer) GetAll() []*router.Endpoint {
-	keys := make([]*router.Endpoint, 0, len(c.pointerTable))
-	for _, ep := range c.pointerTable {
-		keys = append(keys, ep)
-	}
-	return keys
+	return c.randomPickMap.GetAll()
 }
 
 func (c *ConsistentHashBalancer) Stop() {

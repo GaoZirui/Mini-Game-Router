@@ -16,13 +16,13 @@ import (
 
 type DynamicBalancer struct {
 	key           string
-	pointerTable  map[string]*router.Endpoint
 	mu            sync.RWMutex
 	randomPickMap *tools.RandomPickMap
 	cache         cache.Cache
 	hit           int64
 	miss          int64
 	cancel        context.CancelFunc
+	autoFlush     bool
 }
 
 func (r *DynamicBalancer) Name() string {
@@ -35,14 +35,18 @@ func (r *DynamicBalancer) New() MyBalancer {
 
 func (r *DynamicBalancer) Init(config *config.BalancerRule) {
 	r.key = config.DynamicConfig.Key
-	r.pointerTable = map[string]*router.Endpoint{}
 	r.mu = sync.RWMutex{}
 	r.randomPickMap = tools.NewRandomPickMap()
+	r.autoFlush = config.DynamicConfig.AutoFlush
 	if config.DynamicConfig.Cache {
 		r.cache = cache.CacheFactory(config.DynamicConfig.CacheType, config.DynamicConfig.CacheSize)
-		var ctx context.Context
-		ctx, r.cancel = context.WithCancel(context.Background())
-		go nettoolkit.Subscribe(ctx, strings.Split(r.key, "-")[0], r.cache)
+		if r.autoFlush {
+			var ctx context.Context
+			ctx, r.cancel = context.WithCancel(context.Background())
+			go nettoolkit.Subscribe(ctx, strings.Split(r.key, "-")[0], r.cache)
+		} else {
+			r.cancel = nil
+		}
 	} else {
 		r.cache = nil
 	}
@@ -59,7 +63,7 @@ func (r *DynamicBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
 	if r.cache != nil {
 		e := r.cache.Get(key)
 		if e != nil {
-			if r.randomPickMap.Contains(e) {
+			if exists, _ := r.randomPickMap.Contains(e); exists {
 				log.Debug().Msg("pick from cahche")
 				// atomic.AddInt64(&r.hit, 1)
 				return e
@@ -73,7 +77,7 @@ func (r *DynamicBalancer) Pick(metadata *router.Metadata) *router.Endpoint {
 	if ep == nil {
 		return nil
 	}
-	e, exists := r.pointerTable[ep.ToAddr()]
+	exists, e := r.randomPickMap.Contains(ep)
 	if !exists {
 		return nil
 	}
@@ -89,7 +93,6 @@ func (r *DynamicBalancer) Add(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.pointerTable[ep.ToAddr()] = ep
 	r.randomPickMap.Add(ep)
 }
 
@@ -97,8 +100,6 @@ func (r *DynamicBalancer) Remove(ep *router.Endpoint) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	ep = r.pointerTable[ep.ToAddr()]
-	delete(r.pointerTable, ep.ToAddr())
 	r.randomPickMap.Remove(ep)
 }
 
@@ -107,7 +108,9 @@ func (r *DynamicBalancer) GetAll() []*router.Endpoint {
 }
 
 func (r *DynamicBalancer) Stop() {
-	r.cancel()
+	if r.autoFlush {
+		r.cancel()
+	}
 }
 
 func (r *DynamicBalancer) Rate() {

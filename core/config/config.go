@@ -71,6 +71,7 @@ type DynamicConfig struct {
 	Cache     bool   `yaml:"cache"`
 	CacheType string `yaml:"cache_type"`
 	CacheSize int    `yaml:"cache_size"`
+	AutoFlush bool   `yaml:"auto_flush"`
 }
 
 type RedisConfig struct {

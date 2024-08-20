@@ -40,21 +40,21 @@ $ docker-compose exec control ./control --op=up-server
 * 首先在本地开启 `etcd` 与 `redis`
 ```bash
 # 启动服务端
-$ cd deploy
+$ cd cmd/demo/server
 $ go run server.go --svrID=server-1 --configPath=../../../config/serverConfig.yaml --endpointsNum=5 --showReceive
 $ go run server.go --svrID=server-2 --configPath=../../../config/serverConfig.yaml --endpointsNum=5 --showReceive
 $ go run server.go --svrID=server-3 --configPath=../../../config/serverConfig.yaml --endpointsNum=5 --showReceive
 
 # 初始化配置
-$ cd deploy
+$ cd cmd/control
 $ go run control.go --clientConfigPath=../../config/clientConfig.yaml --serverConfigPath=../../config/serverConfig.yaml
 
 # 启动客户端
-$ cd deploy
+$ cd cmd/demo/client
 $ go run client.go --configPath=../../../config/clientConfig.yaml --userNum=3 --requestNum=20000 --coreNum=4 --debug --countReply
 
 # 控制中心命令
-$ cd deploy
+$ cd cmd/control
 # 服务端配置热更新（修改 config/serverConfig）
 $ go run control.go --clientConfigPath=../../config/clientConfig.yaml --serverConfigPath=../../config/serverConfig.yaml --op=set-server
 # 客户端配置热更新（修改 config/clientConfig）

@@ -140,7 +140,9 @@ func watchBalancerRule(namespace, svrName string, notify chan EtcdEvent) {
 				for _, ep := range mybalancer.GetBalancer(prefix).GetAll() {
 					newBalancer.Add(ep)
 				}
+				oldBalancer := mybalancer.GetBalancer(prefix)
 				mybalancer.SetBalancer(prefix, newBalancer)
+				oldBalancer.Stop()
 				log.Info().Msg(fmt.Sprintf("change to balancer type: %v\n", mybalancer.GetBalancer(prefix).Name()))
 				notify <- EtcdEvent_UpdateBalancer
 			case mvccpb.DELETE: //删除

@@ -64,7 +64,7 @@ func (p *myPicker) Pick(info balancer.PickInfo) (balancer.PickResult, error) {
 		time.Sleep(time.Second)
 		return balancer.PickResult{}, nil
 	}
-	log.Debug().Msg(fmt.Sprintf("pick: %v\n", ep.Port))
+	log.Debug().Msg(fmt.Sprintf("pick: %v", ep.Port))
 	return balancer.PickResult{
 		SubConn: p.subConns[ep.ToAddr()],
 	}, nil

@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"sync/atomic"
 	"time"
 	"ziruigao/mini-game-router/core/config"
 	"ziruigao/mini-game-router/core/etcd"
@@ -86,36 +85,15 @@ func main() {
 	pprof.StartCPUProfile(f)
 	defer pprof.StopCPUProfile()
 
-	var (
-		cnt1 int64 = 0
-		cnt2 int64 = 0
-		cnt3 int64 = 0
-	)
-
 	defer func(start time.Time) {
 		elapsed := time.Since(start)
 		fmt.Printf("total time: %s\n", elapsed)
-		fmt.Printf("cnt1: %v cnt2 %v cnt3 %v\n", cnt1, cnt2, cnt3)
-
-		// blc := mybalancer.GetBalancer(*namespace + "/chatsvr/")
-		// if blc != nil {
-		// 	if dynamicBalancer, ok := blc.(*mybalancer.DynamicBalancer); ok {
-		// 		dynamicBalancer.Rate()
-		// 	}
-		// }
-
-		// blc := mybalancer.GetBalancer(*namespace + "/chatsvr/")
-		// if blc != nil {
-		// 	if balancer, ok := blc.(*mybalancer.ConsistentHashBalancer); ok {
-		// 		balancer.Rate()
-		// 	}
-		// }
 	}(time.Now())
 
 	for user := 0; user < int(*userNum); user++ {
 		userID := user
 		ep := sdk.PickEndpointByServerPerformance("chatsvr", etcd.Random)
-		fmt.Printf("user%v choose: %v\n", userID, ep.Port)
+		// fmt.Printf("user%v choose: %v\n", userID, ep.Port)
 		sdk.SetEndpoint("chat-user"+strconv.Itoa(userID), ep, 0)
 		wg.Add(1)
 		client := pb.NewHelloServiceClient(conn)
@@ -139,13 +117,8 @@ func main() {
 					return err
 				}, func() {})
 				if *countReply {
-					if strings.HasSuffix(reply.Message, "10000") {
-						atomic.AddInt64(&cnt1, 1)
-					} else if strings.HasSuffix(reply.Message, "12000") {
-						atomic.AddInt64(&cnt2, 1)
-					} else {
-						atomic.AddInt64(&cnt3, 1)
-					}
+					parts := strings.Split(reply.Message, " ")
+					clientMetrics.RequestDestination.WithLabelValues(parts[len(parts)-1]).Inc()
 				}
 				if *showReply {
 					fmt.Println(reply.Message)

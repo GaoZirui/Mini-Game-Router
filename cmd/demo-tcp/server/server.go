@@ -97,7 +97,7 @@ func handleConnection(conn net.Conn) {
 			break
 		}
 		message = strings.TrimRight(message, "\n")
-		fmt.Printf("Received: ")
+		// fmt.Printf("Received: ")
 		_, err = conn.Write([]byte(fmt.Sprintf("Hello: %s this is %v\n", message, conn.LocalAddr())))
 		if err != nil {
 			fmt.Println("Error sending response:", err.Error())

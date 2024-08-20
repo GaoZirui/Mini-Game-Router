@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	mybalancer "ziruigao/mini-game-router/core/balancer"
 	"ziruigao/mini-game-router/core/config"
+	"ziruigao/mini-game-router/core/etcd"
 	"ziruigao/mini-game-router/core/metrics"
 	"ziruigao/mini-game-router/core/router"
 	"ziruigao/mini-game-router/core/sdk"
@@ -138,19 +138,19 @@ func main() {
 		fmt.Printf("total time: %s\n", elapsed)
 		fmt.Printf("cnt1: %v cnt2 %v cnt3 %v\n", cnt1, cnt2, cnt3)
 
-		blc := mybalancer.GetBalancer(*namespace + "/chatsvr/")
-		if blc != nil {
-			if dynamicBalancer, ok := blc.(*mybalancer.DynamicBalancer); ok {
-				dynamicBalancer.Rate()
-			}
-		}
+		// blc := mybalancer.GetBalancer(*namespace + "/chatsvr/")
+		// if blc != nil {
+		// 	if dynamicBalancer, ok := blc.(*mybalancer.DynamicBalancer); ok {
+		// 		dynamicBalancer.Rate()
+		// 	}
+		// }
 	}(time.Now())
 
 	for user := 0; user < int(*userNum); user++ {
 		userID := user
-		// ep := sdk.PickEndpointByServerPerformance("chatsvr", etcd.Random)
+		ep := sdk.PickEndpointByServerPerformance("chatsvr", etcd.Random)
 		// fmt.Printf("user%v choose: %v\n", userID, ep.Port)
-		// sdk.SetEndpoint("chat-user"+strconv.Itoa(userID), ep, 0)
+		sdk.SetEndpoint("chat-user"+strconv.Itoa(userID), ep, 0)
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

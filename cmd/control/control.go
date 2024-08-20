@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	clientConfigPath = flag.String("clientConfigPath", "clientConfig.yaml", "config file path for client")
-	serverConfigPath = flag.String("serverConfigPath", "serverConfig.yaml", "config file path for server")
+	clientConfigPath = flag.String("clientConfigPath", "../../config/clientConfig.yaml", "config file path for client")
+	serverConfigPath = flag.String("serverConfigPath", "../../config/serverConfig.yaml", "config file path for server")
 	svrID            = flag.String("svrID", "server-2", "svrID(s) for server(s) need to update, split by ','")
 	endpointsNum     = flag.Int("endpointsNum", 5, "number of endpoints need to change")
 	op               = flag.String("op", "init", "oprations to do for config in etcd")

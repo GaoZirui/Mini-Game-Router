@@ -83,13 +83,22 @@ func (s *ServiceRegister) putKeyWithLease(lease int64) error {
 	s.keepAliveChan = leaseRespChan
 
 	log.Info().Msg(fmt.Sprintf("put key: %s val: %s success\n", s.key, s.val))
+
+	// 防止出现 keepalive response queue is full 的 warning
+	go func() {
+		s.listenLeaseRespChan()
+	}()
+
 	return nil
 }
 
 // ListenLeaseRespChan 监听 续租情况
-func (s *ServiceRegister) ListenLeaseRespChan() {
-	for leaseKeepResp := range s.keepAliveChan {
-		log.Debug().Msg(fmt.Sprintf("set lease success: %v", leaseKeepResp))
+func (s *ServiceRegister) listenLeaseRespChan() {
+	// for leaseKeepResp := range s.keepAliveChan {
+	// 	log.Debug().Msg(fmt.Sprintf("set lease success: %v", leaseKeepResp))
+	// }
+	for range s.keepAliveChan {
+		// do nothing
 	}
 	log.Info().Msg("close lease")
 }
